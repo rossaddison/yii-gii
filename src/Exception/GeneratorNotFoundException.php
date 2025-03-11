@@ -9,11 +9,13 @@ use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 final class GeneratorNotFoundException extends Exception implements FriendlyExceptionInterface
 {
+    #[\Override]
     public function getName(): string
     {
         return 'Generator not found';
     }
 
+    #[\Override]
     public function getSolution(): ?string
     {
         return "When you add a generator for the Gii Generator you should specify a value that can be:\n\n"
