@@ -69,9 +69,16 @@ abstract class AbstractGenerator implements GeneratorInterface
             return $this->defaultTemplate();
         }
 
+        /**
+         * @var array<string, string> $templates
+         */
         $templates = $this->parametersProvider->getTemplates(static::getId());
 
-        return $templates[$template] ?? throw new InvalidConfigException("Unknown template: \"{$template}\"");
+        if (!isset($templates[$template])) {
+            throw new InvalidConfigException("Unknown template: \"{$template}\"");
+        }
+
+        return $templates[$template];
     }
 
     /**
@@ -117,8 +124,10 @@ abstract class AbstractGenerator implements GeneratorInterface
         );
 
         $renderer = function (): void {
+            /** @psalm-suppress MixedAssignment func_get_arg(1) */
             $templateParams = func_get_arg(1);
             is_array($templateParams) ? extract($templateParams) : false;
+            /** @psalm-suppress MixedAssignment func_get_arg(0) */
             $templateFile = func_get_arg(0);
             if (null !== $templateFile && is_string($templateFile)) {
                 /** @psalm-suppress UnresolvableInclude */

@@ -27,6 +27,13 @@ final class GeneratorProxy
 
     public function loadGenerator(): GeneratorInterface
     {
-        return $this->generator ??= ($this->loader)();
+        if ($this->generator === null) {
+            /**
+             * @var GeneratorInterface ($this->loader)()
+             */
+            $loaded = ($this->loader)();
+            $this->generator = $loaded;
+        }
+        return $this->generator;
     }
 }
