@@ -37,7 +37,7 @@ final class Gii implements GiiInterface
         }
 
         $proxies = $this->proxies;
-        $proxiesId = $proxies[$id] ?? ''; 
+        $proxiesId = $proxies[$id] ?? '';
         $proxy = $proxiesId  instanceof GeneratorProxy ? $proxiesId : [];
         if (!empty($proxy)) {
             return $proxy->loadGenerator();
