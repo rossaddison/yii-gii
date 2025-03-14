@@ -199,7 +199,7 @@ final class CodeFile
         foreach ($lines1 as $i => $line) {
             $lines1[$i] = rtrim($line, "\r\n");
         }
-        
+
         /**
          * @var string $line
          */
