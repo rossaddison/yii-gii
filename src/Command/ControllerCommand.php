@@ -49,8 +49,11 @@ final class ControllerCommand extends BaseGenerateCommand
         $actions = $input->getOption('actions');
         $actions = $actions !== null ? explode(',', (string)$actions) : ['index'];
 
-        /** @psalm-suppress MixedAssignment $input->getOption('template') */
-        $template = $input->getOption('template') ?? 'default';
+        /**
+         * @var string|null $template
+         */
+        $template = $input->getOption('template');
+        $template ??= 'default';
 
         return new \Yiisoft\Yii\Gii\Generator\Controller\Command(
             controllerClass: (string)$input->getArgument('controllerClass'),

@@ -102,7 +102,12 @@ final class ReservedKeywordHandler implements RuleHandlerInterface
         }
 
         $result = new Result();
-        if (self::isReservedKeyword((string)$value)) {
+        if (!is_string($value)) {
+            $result->addError(sprintf('Value must be a string, %s given.".', gettype($value)));
+            return $result;
+        }
+
+        if (self::isReservedKeyword($value)) {
             $result->addError(
                 message: 'The value {value} is a reserved keyword.',
                 parameters: ['value' => (string)$value],

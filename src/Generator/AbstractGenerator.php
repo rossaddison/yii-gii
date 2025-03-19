@@ -117,15 +117,10 @@ abstract class AbstractGenerator implements GeneratorInterface
         );
 
         $renderer = function (): void {
-            /** @psalm-suppress MixedAssignment func_get_arg(1) */ 
-            $templateParams = func_get_arg(1);
-            is_array($templateParams) ? extract($templateParams) : false;
-            /** @psalm-suppress MixedAssignment func_get_arg(0) */ 
-            $templateFile = func_get_arg(0);
-            if (null !== $templateFile && is_string($templateFile)) {
-                /** @psalm-suppress UnresolvableInclude */
-                strlen($templateFile) > 0 ? require $templateFile : false;
-            }
+            /** @psalm-suppress MixedArgument,PossiblyFalseArgument */
+            extract(func_get_arg(1));
+            /** @psalm-suppress UnresolvableInclude */
+            require func_get_arg(0);
         };
 
         $obInitialLevel = ob_get_level();

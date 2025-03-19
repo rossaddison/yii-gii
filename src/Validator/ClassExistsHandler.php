@@ -22,7 +22,12 @@ final class ClassExistsHandler implements RuleHandlerInterface
         }
 
         $result = new Result();
-        if (!class_exists((string)$value)) {
+        if (!is_string($value)) {
+            $result->addError(sprintf('Value must be a string, %s given.".', gettype($value)));
+            return $result;
+        }
+
+        if (!class_exists($value)) {
             $result->addError("Class '$value' does not exist or has syntax error.");
         }
 

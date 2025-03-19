@@ -16,5 +16,7 @@
     </projectFiles>
     <issueHandlers>
         <MixedReturnStatement errorLevel="suppress" />
-    </issueHandlers>  
+        <MissingOverrideAttribute errorLevel="suppress" />
+        <MixedAssignment errorLevel="suppress" />
+    </issueHandlers>
 </psalm>
