@@ -34,14 +34,12 @@ abstract class BaseGenerateCommand extends Command
         parent::__construct();
     }
 
-    #[\Override]
     protected function configure(): void
     {
         $this->addOption('overwrite', 'o', InputArgument::OPTIONAL, '')
             ->addOption('template', 't', InputArgument::OPTIONAL, '');
     }
 
-    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $generator = $this->getGenerator();
@@ -104,7 +102,7 @@ abstract class BaseGenerateCommand extends Command
                 if ($skipAll !== null) {
                     $answers[$file->getId()] = CodeFileWriteOperationEnum::SAVE->value;
                 } else {
-                    $answer = (string)$this->choice($input, $output);
+                    $answer = $this->choice($input, $output);
                     $answers[$file->getId()] = ($answer === 'y' || $answer === 'ya')
                         ? CodeFileWriteOperationEnum::SAVE->value
                         : CodeFileWriteOperationEnum::SKIP->value;
@@ -122,7 +120,7 @@ abstract class BaseGenerateCommand extends Command
             return;
         }
 
-        if ($this->confirm($input, $output) !== true) {
+        if (!$this->confirm($input, $output)) {
             $output->writeln("\n<fg=cyan>No file was generated.</>");
             return;
         }
@@ -130,14 +128,9 @@ abstract class BaseGenerateCommand extends Command
         $result = $this->codeFileWriter->write($files, $answers);
 
         $hasError = false;
-        /**
-         * @var array $individualResult
-         */
-        foreach ($result->getResults() as $fileId => $individualResult) {
+        foreach ($result->getResults() as $fileId => $result) {
             $file = $files[$fileId];
-            $resultStatus = (string)$individualResult['status'];
-            $resultError = (string)$individualResult['error'];
-            $color = match ($resultStatus) {
+            $color = match ($result['status']) {
                 CodeFileWriteStatusEnum::CREATED->value => 'green',
                 CodeFileWriteStatusEnum::OVERWROTE->value => 'blue',
                 CodeFileWriteStatusEnum::ERROR->value => 'red',
@@ -147,16 +140,16 @@ abstract class BaseGenerateCommand extends Command
                 sprintf(
                     '<fg=%s>%s</>: %s',
                     $color,
-                    $resultStatus,
+                    $result['status'],
                     $file->getRelativePath(),
                 )
             );
-            if (CodeFileWriteStatusEnum::ERROR->value === $resultStatus) {
+            if (CodeFileWriteStatusEnum::ERROR->value === $result['status'] && $result['error'] !== null) {
                 $hasError = true;
                 $output->writeln(
                     sprintf(
                         '<fg=red>%s</>',
-                        $resultError
+                        $result['error']
                     )
                 );
             }
@@ -171,17 +164,17 @@ abstract class BaseGenerateCommand extends Command
 
     abstract protected function createGeneratorCommand(InputInterface $input): GeneratorCommandInterface;
 
-    /**
-     * @return bool|mixed|string|null
-     */
-    protected function confirm(InputInterface $input, OutputInterface $output)
+    protected function confirm(InputInterface $input, OutputInterface $output): bool
     {
         $question = new ConfirmationQuestion("\nReady to generate the selected files? (yes|no) [yes]:", true);
         /**
          * @var QuestionHelper $helper
          */
         $helper = $this->getHelper('question');
-        return $helper->ask($input, $output, $question);
+        return match ($helper->ask($input, $output, $question)) {
+            true, 'Y', 'y', 'yes' => true,
+            default => false,
+        };
     }
 
     /**
@@ -205,14 +198,14 @@ abstract class BaseGenerateCommand extends Command
         return $helper->ask($input, $output, $question);
     }
 
+    /**
+     * @param array<string> $answers
+     */
     private function areAllFilesSkipped(array $answers): bool
     {
         return [] === array_filter(
             $answers,
-            /**
-             * @see Explanation for casting `(string)answer`  `::from` expects either an int or string as argument. An answer should be a string only.
-             */
-            fn ($answer) => CodeFileWriteOperationEnum::from((string)$answer) !== CodeFileWriteOperationEnum::SKIP
+            fn ($answer) => CodeFileWriteOperationEnum::from($answer) !== CodeFileWriteOperationEnum::SKIP
         );
     }
 }

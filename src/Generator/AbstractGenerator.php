@@ -38,7 +38,6 @@ abstract class AbstractGenerator implements GeneratorInterface
     ) {
     }
 
-    #[\Override]
     public function getRequiredTemplates(): array
     {
         return [];
@@ -60,7 +59,6 @@ abstract class AbstractGenerator implements GeneratorInterface
         return dirname($class->getFileName()) . '/default';
     }
 
-    #[\Override]
     public function getTemplatePath(GeneratorCommandInterface $command): string
     {
         $template = $command->getTemplate();
@@ -69,16 +67,9 @@ abstract class AbstractGenerator implements GeneratorInterface
             return $this->defaultTemplate();
         }
 
-        /**
-         * @var array<string, string> $templates
-         */
         $templates = $this->parametersProvider->getTemplates(static::getId());
 
-        if (!isset($templates[$template])) {
-            throw new InvalidConfigException("Unknown template: \"{$template}\"");
-        }
-
-        return $templates[$template];
+        return $templates[$template] ?? throw new InvalidConfigException("Unknown template: \"{$template}\"");
     }
 
     /**
@@ -90,7 +81,6 @@ abstract class AbstractGenerator implements GeneratorInterface
      *
      * @return CodeFile[]
      */
-    #[\Override]
     final public function generate(GeneratorCommandInterface $command): array
     {
         $result = $this->validator->validate($command);
@@ -124,15 +114,10 @@ abstract class AbstractGenerator implements GeneratorInterface
         );
 
         $renderer = function (): void {
-            /** @psalm-suppress MixedAssignment func_get_arg(1) */
-            $templateParams = func_get_arg(1);
-            is_array($templateParams) ? extract($templateParams) : false;
-            /** @psalm-suppress MixedAssignment func_get_arg(0) */
-            $templateFile = func_get_arg(0);
-            if (null !== $templateFile && is_string($templateFile)) {
-                /** @psalm-suppress UnresolvableInclude */
-                strlen($templateFile) > 0 ? require $templateFile : false;
-            }
+            /** @psalm-suppress MixedArgument,PossiblyFalseArgument */
+            extract(func_get_arg(1));
+            /** @psalm-suppress UnresolvableInclude */
+            require func_get_arg(0);
         };
 
         $obInitialLevel = ob_get_level();

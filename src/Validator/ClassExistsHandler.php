@@ -14,7 +14,6 @@ use Yiisoft\Validator\ValidationContext;
  */
 final class ClassExistsHandler implements RuleHandlerInterface
 {
-    #[\Override]
     public function validate(mixed $value, object $rule, ValidationContext $context): Result
     {
         if (!$rule instanceof ClassExistsRule) {
@@ -22,7 +21,12 @@ final class ClassExistsHandler implements RuleHandlerInterface
         }
 
         $result = new Result();
-        if (!class_exists((string)$value)) {
+        if (!is_string($value)) {
+            $result->addError(sprintf('Value must be a string, %s given.".', gettype($value)));
+            return $result;
+        }
+
+        if (!class_exists($value)) {
             $result->addError("Class '$value' does not exist or has syntax error.");
         }
 

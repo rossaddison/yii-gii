@@ -24,8 +24,6 @@ final class NewClassHandler implements RuleHandlerInterface
      *
      * @param mixed $value being validated
      */
-
-    #[\Override]
     public function validate(mixed $value, object $rule, ValidationContext $context): Result
     {
         if (!$rule instanceof NewClassRule) {
@@ -33,7 +31,12 @@ final class NewClassHandler implements RuleHandlerInterface
         }
 
         $result = new Result();
-        $class = ltrim((string)$value, '\\');
+        if (!is_string($value)) {
+            $result->addError(sprintf('Value must be a string, %s given.".', gettype($value)));
+            return $result;
+        }
+
+        $class = ltrim($value, '\\');
         if (($pos = strrpos($class, '\\')) !== false) {
             $ns = substr($class, 0, $pos);
             try {

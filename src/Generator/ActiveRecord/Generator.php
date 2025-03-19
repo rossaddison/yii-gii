@@ -27,25 +27,21 @@ final class Generator extends AbstractGenerator
         parent::__construct($aliases, $validator, $parametersProvider);
     }
 
-    #[\Override]
     public static function getId(): string
     {
         return 'active-record';
     }
 
-    #[\Override]
     public static function getName(): string
     {
         return 'Active Record';
     }
 
-    #[\Override]
     public static function getDescription(): string
     {
         return '';
     }
 
-    #[\Override]
     public function getRequiredTemplates(): array
     {
         return [
@@ -57,7 +53,6 @@ final class Generator extends AbstractGenerator
      * @psalm-suppress DocblockTypeContradiction 'integer' => 'int'
      * @psalm-suppress DeprecatedMethod $columnSchema->isAllowNull()
      */
-    #[\Override]
     public function doGenerate(GeneratorCommandInterface $command): array
     {
         if (!$command instanceof Command) {
@@ -71,15 +66,15 @@ final class Generator extends AbstractGenerator
         $properties = [];
         if ($schema = $this->connection->getTableSchema($command->getTableName(), true)) {
             foreach ($schema->getColumns() as $columnSchema) {
-                $properties[] = [
-                    'name' => $columnSchema->getName(),
-                    'type' => match ($columnSchema->getPhpType()) {
+                $properties[] = new Column(
+                    name: (string)$columnSchema->getName(),
+                    type: match ($columnSchema->getPhpType()) {
                         'integer' => 'int',
                         default => 'string',
                     },
-                    'isAllowNull' => $columnSchema->isAllowNull(),
-                    'defaultValue' => $columnSchema->getDefaultValue(),
-                ];
+                    isAllowNull: $columnSchema->isAllowNull(),
+                    defaultValue: $columnSchema->getDefaultValue(),
+                );
             }
         }
         $path = $this->getControllerFile($command);
@@ -112,7 +107,6 @@ final class Generator extends AbstractGenerator
         );
     }
 
-    #[\Override]
     public static function getCommandClass(): string
     {
         return Command::class;

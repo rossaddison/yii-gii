@@ -25,7 +25,6 @@ final class ControllerCommand extends BaseGenerateCommand
     /** @psalm-suppress MissingPropertyType */
     protected static $defaultName = 'gii/controller';
 
-    #[\Override]
     protected function configure(): void
     {
         $this->setDescription('Gii controller generator')
@@ -36,28 +35,28 @@ final class ControllerCommand extends BaseGenerateCommand
         parent::configure();
     }
 
-    #[\Override]
     public function getGenerator(): GeneratorInterface
     {
         return $this->gii->getGenerator(Generator::getId());
     }
 
-    #[\Override]
     protected function createGeneratorCommand(InputInterface $input): GeneratorCommandInterface
     {
-        /** @psalm-suppress MixedAssignment $actions */
         $actions = $input->getOption('actions');
         $actions = $actions !== null ? explode(',', (string)$actions) : ['index'];
 
-        /** @psalm-suppress MixedAssignment $input->getOption('template') */
-        $template = $input->getOption('template') ?? 'default';
+        /**
+         * @var string|null $template
+         */
+        $template = $input->getOption('template');
+        $template ??= 'default';
 
         return new \Yiisoft\Yii\Gii\Generator\Controller\Command(
             controllerClass: (string)$input->getArgument('controllerClass'),
             viewsPath: (string)$input->getOption('viewsPath'),
             baseClass: (string)$input->getOption('baseClass'),
             actions: $actions,
-            template: (string)$template,
+            template: $template,
         );
     }
 }

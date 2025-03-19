@@ -105,7 +105,7 @@ final class DefaultController
             if ($generatedFile->getId() === $file) {
                 $content = $generatedFile->preview();
                 return $this->responseFactory->createResponse(
-                    ['content' => (string)$content ?: 'Preview is not available for this file type.']
+                    ['content' => is_string($content) ? $content : 'Preview is not available for this file type.']
                 );
             }
         }
@@ -181,14 +181,10 @@ final class DefaultController
         $constructorParameters = $reflection->getConstructor()?->getParameters() ?? [];
 
         $attributesResult = [];
-        /**
-         * @var string $attributeName
-         */
         foreach ($attributes as $attributeName) {
             $reflectionProperty = $reflection->getProperty($attributeName);
-            /** @psalm-suppress MixedAssignment $defaultValue */
             $defaultValue = $reflectionProperty->hasDefaultValue()
-                ? (string)$reflectionProperty->getDefaultValue()
+                ? $reflectionProperty->getDefaultValue()
                 : $this->findReflectionParameter($attributeName, $constructorParameters)?->getDefaultValue();
             $attributesResult[$attributeName] = [
                 'defaultValue' => $defaultValue,
