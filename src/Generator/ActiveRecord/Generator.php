@@ -73,11 +73,11 @@ final class Generator extends AbstractGenerator
             foreach ($schema->getColumns() as $columnSchema) {
                 $properties[] = [
                     'name' => $columnSchema->getName(),
-                    'type' => match ($columnSchema->getPhpType()) {
+                    'type' => match ($columnSchema->getType()) {
                         'integer' => 'int',
                         default => 'string',
                     },
-                    'isAllowNull' => $columnSchema->isAllowNull(),
+                    'isNotNull' => $columnSchema->isNotNull(),
                     'defaultValue' => $columnSchema->getDefaultValue(),
                 ];
             }

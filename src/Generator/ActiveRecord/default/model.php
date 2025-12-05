@@ -27,7 +27,7 @@ final class <?= $command->getModelName(); ?> extends <?= StringHelper::baseName(
     foreach ($properties as $property): ?>
     private <?=sprintf(
         '%s%s $%s',
-        $property['isAllowNull'] ? '?' : '',
+        $property['isNotNull'] ? '' : '?',
         (string)$property['type'],
         (string)$property['name'],
     )?>;
